@@ -5,11 +5,11 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
 var bodyParser = require('body-parser');
 var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
+var axios = require('axios');
 
 app.set('port', (process.env.PORT || 5000));
 app.listen(app.get('port'));
@@ -21,6 +21,17 @@ var token = process.env.TOKEN ;
 var received_updates = [];
 
 var IG_accessToken = process.env.APP_SECRET ; 
+
+async function fetchUsername(senderId, accessToken) {
+  try {
+    const url = `https://graph.instagram.com/v22.0/${senderId}?fields=username&access_token=${accessToken}`;
+    const response = await axios.get(url);
+    console.log('Username:', response.data.username);
+    received_updates.unshift(response.data); 
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+}
 
 //This method prints out the log in the browser when validated with a token
 app.get('/', function(req, res) {
@@ -66,17 +77,12 @@ app.post('/instagram', function(req, res) {
   console.log(req.body);
   console.log(req.body.entry[0].messaging);
 
+  received_updates.unshift(req.body);
+
   const senderId = req.body.entry[0].messaging[0].sender.id; 
   console.log('Looking up username for ID: ', senderId);
-  try {
-    const url = `https://graph.instagram.com/v22.0/${senderId}?fields=username&access_token=${IG_accessToken}`;
-    const response = fetch(url);
-    console.log('Username:', response);
-  } catch (error) {
-    console.error('Error', error);
-  }
+  fetchUsername(senderId, IG_accessToken);
 
-  received_updates.unshift(req.body);
   res.sendStatus(200);
 });
 

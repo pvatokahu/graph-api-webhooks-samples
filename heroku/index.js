@@ -61,27 +61,21 @@ app.post('/facebook', function(req, res) {
 
 //This route prints out the message based on what's received from the webhook. 
 
-const getNameforIG_ID = async (role: string, IG_ID: string) => {
-  try {
-    console.log('Looking up username', role);
-    const url = `https://graph.instagram.com/v22.0/${IG_ID}?fields=username&access_token=${IG_accessToken}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log('Username:', data);
-    return data;
-  } catch (error) {
-    console.error('Error', error);
-  }
-};
-
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
   console.log(req.body.entry[0].messaging);
 
   const senderId = req.body.entry[0].messaging[0].sender.id); 
-  const senderName = getNameforIG_ID(`sender`, `${senderId}`)
+  console.log('Looking up username for ID: ', senderId);
+  try {
+    const url = `https://graph.instagram.com/v22.0/${senderId}?fields=username&access_token=${IG_accessToken}`;
+
+    const response = await fetch(url);
+    console.log('Username:', response);
+  } catch (error) {
+    console.error('Error', error);
+  }
 
   received_updates.unshift(req.body);
   res.sendStatus(200);

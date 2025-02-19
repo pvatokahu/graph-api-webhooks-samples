@@ -66,7 +66,7 @@ app.post('/instagram', function(req, res) {
   console.log(req.body);
   console.log(req.body.entry[0].messaging);
 
-  const senderId = req.body.entry[0].messaging[0].sender.id); 
+  const senderId = req.body.entry[0].messaging[0].sender.id; 
   console.log('Looking up username for ID: ', senderId);
   try {
     const url = `https://graph.instagram.com/v22.0/${senderId}?fields=username&access_token=${IG_accessToken}`;

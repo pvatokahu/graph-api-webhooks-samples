@@ -70,8 +70,7 @@ app.post('/instagram', function(req, res) {
   console.log('Looking up username for ID: ', senderId);
   try {
     const url = `https://graph.instagram.com/v22.0/${senderId}?fields=username&access_token=${IG_accessToken}`;
-
-    const response = await fetch(url);
+    const response = fetch(url);
     console.log('Username:', response);
   } catch (error) {
     console.error('Error', error);

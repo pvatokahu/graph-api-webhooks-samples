@@ -22,11 +22,12 @@ var received_updates = [];
 
 var IG_accessToken = process.env.APP_SECRET ; 
 
-async function fetchUsername(senderId, accessToken) {
+async function fetchUsername(label, IGId, accessToken) {
   try {
-    const url = `https://graph.instagram.com/v22.0/${senderId}?fields=username&access_token=${accessToken}`;
+    const url = `https://graph.instagram.com/v22.0/${IGId}?fields=username&access_token=${accessToken}`;
     const response = await axios.get(url);
-    console.log('Username:', response.data.username);
+    console.log(label, 'username:', response.data.username);
+    response.data[`role`] = `${label}`
     received_updates.unshift(response.data); 
   } catch (error) {
     console.error('Error fetching data:', error.message);
@@ -75,13 +76,23 @@ app.post('/facebook', function(req, res) {
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
-  console.log(req.body.entry[0].messaging);
 
   received_updates.unshift(req.body);
 
-  const senderId = req.body.entry[0].messaging[0].sender.id; 
-  console.log('Looking up username for ID: ', senderId);
-  fetchUsername(senderId, IG_accessToken);
+  if (req.body.hasOwnProperty('entry')) {
+    if (req.body.entry[0].hasOwnProperty('messaging')) {
+      console.log(req.body.entry[0].messaging);
+
+      const senderId = req.body.entry[0].messaging[0].sender.id; 
+      console.log('Looking up username for ID: ', senderId);
+      fetchUsername(`sender`, senderId, IG_accessToken);
+
+      const recipientId = req.body.entry[0].messaging[0].recipient.id; 
+      console.log('Looking up username for ID: ', recipientId);
+      fetchUsername(`recepient`, recipientId, IG_accessToken);
+    }
+
+  }
 
   res.sendStatus(200);
 });

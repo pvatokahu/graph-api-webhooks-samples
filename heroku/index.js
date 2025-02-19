@@ -44,6 +44,21 @@ app.get('/', function(req, res) {
   }
 });
 
+app.get('/login', (req, res) => {
+  const mycode = req.query.code;
+
+  if (mycode) {
+    // 'mycode' exists in the query parameters
+    console.log('Received mycode:', mycode);
+    res.send(`Received mycode: ${mycode}`);
+  } else {
+    // 'mycode' is not present in the query parameters
+    console.error('No mycode parameter found in the query string.');
+    res.status(400).send('Missing mycode parameter.');
+  }
+});
+
+
 //This route responds to check the verify token item. 
 app.get(['/facebook', '/instagram', '/threads'], function(req, res) {
   if (

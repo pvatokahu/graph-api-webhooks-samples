@@ -20,11 +20,17 @@ app.use(bodyParser.json());
 var token = process.env.TOKEN || 'token';
 var received_updates = [];
 
+//This method prints out the log in the browser when validated with a token
 app.get('/', function(req, res) {
+  if (req.query['hub.verify_token'] == token) {
   console.log(req);
   res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
+  } else {
+    res.sendStatus(400);
+  }
 });
 
+//This route responds to check the verify token item. 
 app.get(['/facebook', '/instagram', '/threads'], function(req, res) {
   if (
     req.query['hub.mode'] == 'subscribe' &&
@@ -51,13 +57,12 @@ app.post('/facebook', function(req, res) {
   res.sendStatus(200);
 });
 
+//This route prints out the message based on what's received from the webhook. 
+
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
-
   console.log(req.body.entry[0].messaging);
-  console.log(req.body.entry.messaging);
-  // Process the Instagram updates here
   received_updates.unshift(req.body);
   res.sendStatus(200);
 });

@@ -17,8 +17,10 @@ app.listen(app.get('port'));
 app.use(xhub({ algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
 
-var token = process.env.TOKEN || 'token';
+var token = process.env.TOKEN ;
 var received_updates = [];
+
+var IG_accessToken = process.env.APP_SECRET ; 
 
 //This method prints out the log in the browser when validated with a token
 app.get('/', function(req, res) {
@@ -59,10 +61,28 @@ app.post('/facebook', function(req, res) {
 
 //This route prints out the message based on what's received from the webhook. 
 
+const getNameforIG_ID = async (role: string, IG_ID: string) => {
+  try {
+    console.log('Looking up username', role);
+    const url = `https://graph.instagram.com/v22.0/${IG_ID}?fields=username&access_token=${IG_accessToken}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log('Username:', data);
+    return data;
+  } catch (error) {
+    console.error('Error', error);
+  }
+};
+
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
   console.log(req.body.entry[0].messaging);
+
+  const senderId = req.body.entry[0].messaging[0].sender.id); 
+  const senderName = getNameforIG_ID(`sender`, `${senderId}`)
+
   received_updates.unshift(req.body);
   res.sendStatus(200);
 });

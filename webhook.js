@@ -23,21 +23,29 @@ var received_updates = [];
 var IG_accessToken = process.env.APP_SECRET ;
 var IG_appID = process.env.IG_appID || 17841465313856941 ; 
 
+//manage consent to send message
+const userConsents = new Map();
+function setUserConsent(userId, consent) {
+  userConsents.set(userId, consent);
+}
+function getUserConsent(userId) {
+  userConsents.get(userId, consent);
+}
+
 async function fetchUsername(label, IGId, accessToken) {
   try {
     const url = `https://graph.instagram.com/v22.0/${IGId}?fields=username&access_token=${accessToken}`;
     const response = await axios.get(url);
-    console.log(label, 'username:', response.data.username);
-    response.data[`role`] = `${label}`
+    response.data[`role`] = `${label}`;  
     received_updates.unshift(response.data); 
   } catch (error) {
     console.error('Error fetching data:', error.message);
   }
 }
 
-async function echoMessagetoID(recepientId, accessToken) {
+async function sendMessagetoUser(recepientId, accessToken, message) {
   const data = {
-    message: { 'text' : 'i heard you dear person'}, 
+    message: { 'text' : message }, 
     recipient: { 'id' : recepientId }
   };
   
@@ -51,24 +59,27 @@ async function echoMessagetoID(recepientId, accessToken) {
   };
   console.log(config);
 
-
-  try {
-    const response = await axios.post(`https://graph.instagram.com/v22.0/me/messages`, data, config);
-    console.log('sent an echo with message id:', response.data);
-    received_updates.unshift(response.data); 
-  } catch (error) {
-    if (error.response) {
+  if (getUserConsent(recepientId)) {
+   try {
+     const response = await axios.post(`https://graph.instagram.com/v22.0/me/messages`, data, config);
+     console.log('sent a message from app account', response.data);
+     received_updates.unshift(response.data); 
+   } catch (error) {
+     if (error.response) {
       // Server responded with a status other than 2xx
       console.error('Error Status:', error.response.status);
       console.error('Error Data:', error.response.data);
-    } else if (error.request) {
+     } else if (error.request) {
       // Request was made but no response received
       console.error('No response received:', error.request);
-    } else {
+     } else {
       // Something else happened while setting up the request
       console.error('Error:', error.message);
-    }
+     }
   }
+ } else {
+  console.error('Error: does not have consent');
+ }
 }
 
 //This method prints out the log in the browser when validated with a token
@@ -125,23 +136,43 @@ app.get(['/instagram'], function(req, res) {
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
-
   received_updates.unshift(req.body);
 
   if (req.body.hasOwnProperty('entry')) {
-    if (req.body.entry[0].hasOwnProperty('messaging')) {
-      console.log(req.body.entry[0].messaging);
+    req.body.entry.forEach((entry, idx) => {
+      if (entry.hasOwnProperty('messaging')) {
+        entry.messaging.forEach((messaging, jdx) => {
+          if (messaging.hasOwnProperty('message')) {
+            
+            const senderId = messaging.sender.id; 
+            const recipientId = messaging.recipient.id; 
+            console.log("got a message notification from", senderId, "to", recipientId); 
+            fetchUsername(`sender`, senderId, IG_accessToken);
+            fetchUsername(`recepient`, recipientId, IG_accessToken);
 
-      const senderId = req.body.entry[0].messaging[0].sender.id; 
-      console.log('Looking up username for ID: ', senderId);
-      fetchUsername(`sender`, senderId, IG_accessToken);
-      if (senderId != IG_appID) { echoMessagetoID(senderId, IG_accessToken); }
+            if (senderId != IG_appID) {
+              console.log("message from other person");
+              //setUserConsent(senderId, true) ;
+              //sendMessagetoUser(senderId,IG_accessToken,`you're talking to an AI`); 
+            } else {
+              console.log("message from okahu");
+            }
+          } else if (messaging.hasOwnProperty('read')) {
+            const senderId = entry.messaging.sender.id; 
+            console.log("got a read notification from", senderId); 
 
-      const recipientId = req.body.entry[0].messaging[0].recipient.id; 
-      console.log('Looking up username for ID: ', recipientId);
-      fetchUsername(`recepient`, recipientId, IG_accessToken);
-    }
-
+          } else {
+            console.log(req.body.entry.messaging);
+          }
+        });
+      } else if (entry.hasOwnProperty('changes')) {
+          console.log('found entry.changes'); 
+      } else {
+          console.log('did not find entry.messaging or entry.changes');
+      }
+    });
+  } else {
+    console.log('did not find entry');
   }
 
   res.sendStatus(200);

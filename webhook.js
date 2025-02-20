@@ -20,7 +20,8 @@ app.use(bodyParser.json());
 var token = process.env.TOKEN ;
 var received_updates = [];
 
-var IG_accessToken = process.env.APP_SECRET ; 
+var IG_accessToken = process.env.APP_SECRET ;
+var IG_appID = process.env.IG_appID || 17841465313856941 ; 
 
 async function fetchUsername(label, IGId, accessToken) {
   try {
@@ -53,7 +54,7 @@ async function echoMessagetoID(recepientId, accessToken) {
 
   try {
     const response = await axios.post(`https://graph.instagram.com/v22.0/me/messages`, data, config);
-    console.log('response with message id:', response.data);
+    console.log('sent an echo with message id:', response.data);
     received_updates.unshift(response.data); 
   } catch (error) {
     if (error.response) {
@@ -134,7 +135,7 @@ app.post('/instagram', function(req, res) {
       const senderId = req.body.entry[0].messaging[0].sender.id; 
       console.log('Looking up username for ID: ', senderId);
       fetchUsername(`sender`, senderId, IG_accessToken);
-      echoMessagetoID(senderId, IG_accessToken)
+      if (senderId != IG_appID) { echoMessagetoID(senderId, IG_accessToken); }
 
       const recipientId = req.body.entry[0].messaging[0].recipient.id; 
       console.log('Looking up username for ID: ', recipientId);

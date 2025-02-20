@@ -34,6 +34,42 @@ async function fetchUsername(label, IGId, accessToken) {
   }
 }
 
+async function echoMessagetoID(recepientId, accessToken) {
+  const data = {
+    message: { 'text' : 'i heard you dear person'}, 
+    recipient: { 'id' : recepientId }
+  };
+  
+  console.log(data);
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    }
+  };
+  console.log(config);
+
+
+  try {
+    const response = await axios.post(`https://graph.instagram.com/v22.0/me/messages`, data, config);
+    console.log('response with message id:', response.data);
+    received_updates.unshift(response.data); 
+  } catch (error) {
+    if (error.response) {
+      // Server responded with a status other than 2xx
+      console.error('Error Status:', error.response.status);
+      console.error('Error Data:', error.response.data);
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error('No response received:', error.request);
+    } else {
+      // Something else happened while setting up the request
+      console.error('Error:', error.message);
+    }
+  }
+}
+
 //This method prints out the log in the browser when validated with a token
 app.get('/', function(req, res) {
   if (req.query['hub.verify_token'] == token) {
@@ -98,6 +134,7 @@ app.post('/instagram', function(req, res) {
       const senderId = req.body.entry[0].messaging[0].sender.id; 
       console.log('Looking up username for ID: ', senderId);
       fetchUsername(`sender`, senderId, IG_accessToken);
+      echoMessagetoID(senderId, IG_accessToken)
 
       const recipientId = req.body.entry[0].messaging[0].recipient.id; 
       console.log('Looking up username for ID: ', recipientId);

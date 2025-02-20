@@ -44,6 +44,17 @@ app.get('/', function(req, res) {
   }
 });
 
+//Clears the received updates array 
+app.get('/clear', function(req, res) {
+  if (req.query['hub.verify_token'] == token) {
+    console.log('Clearing received updates');
+    received_updates.length = 0 ; 
+    res.sendStatus(200); 
+  } else {
+    res.sendStatus(400);
+  }
+});
+
 app.get('/login', (req, res) => {
   const mycode = req.query.code;
 

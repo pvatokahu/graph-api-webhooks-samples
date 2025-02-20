@@ -55,6 +55,7 @@ app.get('/clear', function(req, res) {
   }
 });
 
+//this method is in development
 app.get('/login', (req, res) => {
   const mycode = req.query.code;
 
@@ -70,8 +71,8 @@ app.get('/login', (req, res) => {
 });
 
 
-//This route responds to check the verify token item. 
-app.get(['/facebook', '/instagram', '/threads'], function(req, res) {
+//This route responds to check the verify token item - verified
+app.get(['/instagram'], function(req, res) {
   if (
     req.query['hub.mode'] == 'subscribe' &&
     req.query['hub.verify_token'] == token
@@ -82,22 +83,7 @@ app.get(['/facebook', '/instagram', '/threads'], function(req, res) {
   }
 });
 
-app.post('/facebook', function(req, res) {
-  console.log('Facebook request body:', req.body);
-
-  if (!req.isXHubValid()) {
-    console.log('Warning - request header X-Hub-Signature not present or invalid');
-    res.sendStatus(401);
-    return;
-  }
-
-  console.log('request header X-Hub-Signature validated');
-  // Process the Facebook updates here
-  received_updates.unshift(req.body);
-  res.sendStatus(200);
-});
-
-//This route prints out the message based on what's received from the webhook. 
+//This route prints out the message based on what's received from the webhook - verified
 
 app.post('/instagram', function(req, res) {
   console.log('Instagram request body:');
@@ -120,14 +106,6 @@ app.post('/instagram', function(req, res) {
 
   }
 
-  res.sendStatus(200);
-});
-
-app.post('/threads', function(req, res) {
-  console.log('Threads request body:');
-  console.log(req.body);
-  // Process the Threads updates here
-  received_updates.unshift(req.body);
   res.sendStatus(200);
 });
 

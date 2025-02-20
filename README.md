@@ -1,6 +1,9 @@
-# Graph API Webhooks Samples
+# Instagram automated experience at Okahu
 
-These are sample clients for Facebook's [Webhooks](https://developers.facebook.com/docs/graph-api/webhooks/) product, Instagram's [Subscriptions API](https://www.instagram.com/developer/subscriptions/), and Threads' [Webhooks](https://developers.facebook.com/docs/threads/webhooks).
+Built using Instagram's [Subscriptions API](https://www.instagram.com/developer/subscriptions/) and forking the facebook graph-api-webhooks-samples. 
 
-1. [Heroku](heroku) - A sample client that receives Webhook events.
-1. [Hubot](hubot) - A script that messages a chat room when a Facebook Page post is published using Webhooks.
+This app listens to a webhook for notification from instagram and then provides an API to view the conversation. 
+To run this app, you'll need following env variables
+- TOKEN - this specified who can send notifications to this 
+- APP_SECRET - this is the instagram access_token for the application. 
+configure these in a file .env.local. 

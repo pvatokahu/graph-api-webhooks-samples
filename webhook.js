@@ -151,18 +151,20 @@ app.post('/instagram', function(req, res) {
             fetchUsername(`recepient`, recipientId, IG_accessToken);
 
             if (senderId != IG_appID) {
-              console.log("message from other person");
+              console.log("message from other person", senderId);
               //setUserConsent(senderId, true) ;
               //sendMessagetoUser(senderId,IG_accessToken,`you're talking to an AI`); 
             } else {
               console.log("message from okahu");
             }
           } else if (messaging.hasOwnProperty('read')) {
-            const senderId = entry.messaging.sender.id; 
-            console.log("got a read notification from", senderId); 
-
+              const senderId = messaging.sender.id; 
+              console.log("got a read notification from", senderId); 
+          } else if (messaging.hasOwnProperty('reaction')) {
+              const senderId = messaging.sender.id; 
+              console.log("got a reaction notification from", senderId); 
           } else {
-            console.log(req.body.entry.messaging);
+              console.log(req.body.entry.messaging);
           }
         });
       } else if (entry.hasOwnProperty('changes')) {

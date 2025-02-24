@@ -22,7 +22,7 @@ var received_updates = [];
 
 var IG_accessToken = process.env.APP_SECRET ;
 var IG_appID = process.env.IG_appID || 17841465313856941 ; 
-
+var IG_appName = process.env.APP_IG_USER_NAME || 'okahu.ai' ;
 //manage consent to send message
 const userConsents = new Map();
 function setUserConsent(userId, consent) {
@@ -37,9 +37,11 @@ async function fetchUsername(label, IGId, accessToken) {
     const url = `https://graph.instagram.com/v22.0/${IGId}?fields=username&access_token=${accessToken}`;
     const response = await axios.get(url);
     response.data[`role`] = `${label}`;  
-    received_updates.unshift(response.data); 
+    received_updates.unshift(response.data);
+    return response.data[`username`];
   } catch (error) {
     console.error('Error fetching data:', error.message);
+    return null;
   }
 }
 
@@ -147,13 +149,13 @@ app.post('/instagram', function(req, res) {
             const senderId = messaging.sender.id; 
             const recipientId = messaging.recipient.id; 
             console.log("got a message notification from", senderId, "to", recipientId); 
-            fetchUsername(`sender`, senderId, IG_accessToken);
+            var senderName = fetchUsername(`sender`, senderId, IG_accessToken);
             fetchUsername(`recepient`, recipientId, IG_accessToken);
 
-            if (senderId != IG_appID) {
+            if (senderName != IG_appName) {
               console.log("message from other person", senderId);
-              //setUserConsent(senderId, true) ;
-              //sendMessagetoUser(senderId,IG_accessToken,`you're talking to an AI`); 
+              setUserConsent(senderName, true) ;
+              sendMessagetoUser(senderId,IG_accessToken,`you're talking to an AI`);
             } else {
               console.log("message from okahu");
             }

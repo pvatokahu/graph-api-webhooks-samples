@@ -29,7 +29,10 @@ function setUserConsent(userId, consent) {
   userConsents.set(userId, consent);
 }
 function getUserConsent(userId) {
-  userConsents.get(userId, consent);
+  if (userConsents.get(userId) != true) {
+    return false;
+  }
+  return true; 
 }
 
 async function fetchUsername(label, IGId, accessToken) {

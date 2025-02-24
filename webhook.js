@@ -157,7 +157,7 @@ app.post('/instagram', function(req, res) {
 
             if (senderName != IG_appName) {
               console.log("message from other person", senderId);
-              setUserConsent(senderName, true) ;
+              setUserConsent(senderId, true) ;
               sendMessagetoUser(senderId,IG_accessToken,`you're talking to an AI`);
             } else {
               console.log("message from okahu");

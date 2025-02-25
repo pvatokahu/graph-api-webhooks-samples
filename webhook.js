@@ -183,7 +183,7 @@ app.post('/instagram', function (req, res) {
                 }
               } else {
                 const wineBotResponse = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid);
-                  sendMessagetoUser(senderId, IG_accessToken, wineBotResponse);
+                sendMessagetoUser(senderId, IG_accessToken, wineBotResponse);
               }
             } else {
               console.log("message from okahu");

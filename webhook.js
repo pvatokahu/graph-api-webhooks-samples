@@ -94,10 +94,10 @@ async function getWineBotResponse(winebotToken, senderId, message, messageId) {
     // send post to winebot url
     const response = await axios.post(url, { headers: headers });
     console.log('Received wine.com response:', response.data);
-    return response.data;
+    sendMessagetoUser(senderId, IG_accessToken, response.data);
   } catch (error) {
     console.error('Error fetching data:', error.message);
-    return "Sorry, I'm having trouble understanding. Could you rephrase that?";
+    sendMessagetoUser(senderId, IG_accessToken, "Sorry, I'm having trouble understanding. Could you rephrase that?");
   }
 }
 
@@ -182,8 +182,8 @@ app.post('/instagram', function (req, res) {
                   sendMessagetoUser(senderId, IG_accessToken, `You're talking to an AI. Please reply OK continue with consent to this conversation.`);
                 }
               } else {
-                const wineBotResponse = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid);
-                sendMessagetoUser(senderId, IG_accessToken, wineBotResponse);
+                const wineBotResponse = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid,
+                   recipientId, IG_accessToken);
               }
             } else {
               console.log("message from okahu");

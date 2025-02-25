@@ -91,7 +91,8 @@ async function getWineBotResponse(winebotToken, senderId, message, messageId) {
       'message': messageId,
       'x-functions-key': winebotToken,
     };
-    const response = await axios.get(url, { headers: headers });
+    // send post to winebot url
+    const response = await axios.post(url, { headers: headers });
     console.log('Received wine.com response:', response.data);
     return response.data;
   } catch (error) {

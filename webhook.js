@@ -181,11 +181,8 @@ app.post('/instagram', function (req, res) {
                   sendMessagetoUser(senderId, IG_accessToken, `You're talking to an AI. Please reply OK continue with consent to this conversation.`);
                 }
               } else {
-                getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid)
-                  .then((response) => {
-                    console.log('Received winebot response:', response);
-                    sendMessagetoUser(senderId, IG_accessToken, response);
-                  });
+                var response = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid)
+                sendMessagetoUser(senderId, IG_accessToken, response);
               }
             } else {
               console.log("message from okahu");

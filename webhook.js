@@ -81,6 +81,27 @@ async function sendMessagetoUser(recepientId, accessToken, message) {
   }
 }
 
+
+async function getWineBotResponse(winebotToken, senderId, message, messageId) {
+  try {
+    const url = `https://winebot.azurewebsites.net/api/chatbot?question=${message}`;
+    headers = {
+      'sender': senderId,
+      'session': senderId,
+      'message': messageId,
+      'Authorization': `Bearer ${winebotToken}`,
+
+    };
+    const response = await axios.get(url, { headers: headers });
+    console.log('Received wine.com response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+    return null;
+  }
+}
+
+
 //This method prints out the log in the browser when validated with a token
 app.get('/', function (req, res) {
   if (req.query['hub.verify_token'] == token) {
@@ -161,7 +182,11 @@ app.post('/instagram', function (req, res) {
                   sendMessagetoUser(senderId, IG_accessToken, `You're talking to an AI. Please reply OK continue with consent to this conversation.`);
                 }
               } else {
-                sendMessagetoUser(senderId, IG_accessToken, `Hmm I don't know about ` + messaging.message.text + ` ... I am still recovering from my hangover :(`);
+                getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid)
+                  .then((response) => {
+                    console.log('Received winebot response:', response);
+                    sendMessagetoUser(senderId, IG_accessToken, response);
+                  });
               }
             } else {
               console.log("message from okahu");

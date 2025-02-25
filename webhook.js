@@ -82,7 +82,7 @@ async function sendMessagetoUser(recepientId, accessToken, message) {
 }
 
 
-async function getWineBotResponse(winebotToken, senderId, message, messageId) {
+async function getWineBotResponse(winebotToken, senderId, message, messageId, IG_accessToken) {
   try {
     const url = `https://winebot.azurewebsites.net/api/chatbot?question=${message}`;
     session_headers = {
@@ -188,7 +188,7 @@ app.post('/instagram', function (req, res) {
                 }
               } else {
                 const wineBotResponse = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid,
-                   recipientId, IG_accessToken);
+                   IG_accessToken);
               }
             } else {
               console.log("message from okahu");

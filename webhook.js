@@ -87,9 +87,9 @@ async function getWineBotResponse(winebotToken, senderId, message, messageId, IG
     const url = `https://winebot.azurewebsites.net/api/chatbot?question=${message}`;
     // send post to winebot url
     const response = await axios.post(url, { headers: {
-      "sender": `${senderId}`,
-      "session": `${senderId}`,
-      "message": `${messageId}`,
+      "sender-id": `${senderId}`,
+      "session-id": `${senderId}`,
+      "message-id": `${messageId}`,
       'x-functions-key': winebotToken,
     } });
     console.log('Received wine.com response:', response.data);

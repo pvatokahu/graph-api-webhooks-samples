@@ -97,7 +97,7 @@ async function getWineBotResponse(winebotToken, senderId, message, messageId) {
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error.message);
-    return null;
+    return "Sorry, I'm having trouble understanding. Could you rephrase that?";
   }
 }
 
@@ -183,11 +183,7 @@ app.post('/instagram', function (req, res) {
                 }
               } else {
                 const wineBotResponse = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid);
-                if (wineBotResponse) {
                   sendMessagetoUser(senderId, IG_accessToken, wineBotResponse);
-                } else {
-                    sendMessagetoUser(senderId, IG_accessToken, "Sorry, I'm having trouble understanding. Could you rephrase that?");
-                }
               }
             } else {
               console.log("message from okahu");

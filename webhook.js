@@ -181,8 +181,12 @@ app.post('/instagram', function (req, res) {
                   sendMessagetoUser(senderId, IG_accessToken, `You're talking to an AI. Please reply OK continue with consent to this conversation.`);
                 }
               } else {
-                var response = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid)
-                sendMessagetoUser(senderId, IG_accessToken, response);
+                const wineBotResponse = getWineBotResponse(process.env.WINEBOT_TOKEN, senderId, messaging.message.text, messaging.message.mid);
+                if (wineBotResponse) {
+                  sendMessagetoUser(senderId, IG_accessToken, wineBotResponse);
+                } else {
+                    sendMessagetoUser(senderId, IG_accessToken, "Sorry, I'm having trouble understanding. Could you rephrase that?");
+                }
               }
             } else {
               console.log("message from okahu");
